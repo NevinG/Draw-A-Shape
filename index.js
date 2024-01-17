@@ -4,7 +4,6 @@ const accuracyText = document.getElementById("accuracy-text");
 
 ctx.canvas.width = canvas.offsetWidth;
 ctx.canvas.height = canvas.offsetHeight;
-console.log(ctx);
 
 const canvasTop = ctx.canvas.getBoundingClientRect().top;
 let lastX = undefined;
@@ -18,6 +17,7 @@ let yMax = 0;
 let drawingStartTime = undefined;
 
 let drawing = false;
+let drawingTimeout = undefined;
 const strokeRadius = 5;
 
 if (localStorage.getItem("circle") == undefined)
@@ -29,9 +29,30 @@ if (localStorage.getItem("triangle") == undefined)
 
 ctx.lineWidth = strokeRadius;
 
-canvas.onmousedown = (e) => {
+canvas.onmousedown = onMouseDown;
+canvas.ontouchstart = onMouseDown;
+
+canvas.onmouseup = () => {
+    if(drawing)
+        endDrawing();
+}
+
+canvas.ontouchend = () => {
+    if(drawing)
+        endDrawing();
+}
+
+addEventListener("mousemove", moveMouse);
+addEventListener("touchmmove", moveMouse);
+
+function drawCircle(x, y){
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function onMouseDown(e){
     accuracyText.innerText = "0% accurate";
-    setTimeout(() => {
+    drawingTimeout = setTimeout(() => {
         if(drawing)
             endDrawing();
     }, 3000);
@@ -47,13 +68,10 @@ canvas.onmousedown = (e) => {
     ctx.moveTo(e.clientX, e.clientY - canvasTop);
     ctx.beginPath();
     drawing = true
-}
-canvas.onmouseup = () => {
-    if(drawing)
-        endDrawing();
+    
 }
 
-addEventListener("mousemove", function(e){
+function moveMouse(e){
     if(drawing){
         accuracyText.innerText = ((3000 - (Date.now() - drawingStartTime)) /1000).toFixed(2) + " seconds remaining";
         if (Math.sqrt(Math.pow(lastX - e.clientX, 2) + Math.pow(lastY - (e.clientY - canvasTop), 2)) > 5){
@@ -67,14 +85,11 @@ addEventListener("mousemove", function(e){
             lastY = e.clientY - canvasTop;
         }
     }
- });
-
-function drawCircle(x, y){
-    ctx.lineTo(x, y);
-    ctx.stroke();
 }
 
 function endDrawing(e){
+    clearTimeout(drawingTimeout);
+
     ctx.closePath();
     drawing = false;
     
