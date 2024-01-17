@@ -15,6 +15,7 @@ let xMin = Number.MAX_SAFE_INTEGER;
 let xMax = 0;
 let yMin = Number.MAX_SAFE_INTEGER;
 let yMax = 0;
+let drawingStartTime = undefined;
 
 let drawing = false;
 const strokeRadius = 5;
@@ -30,6 +31,11 @@ ctx.lineWidth = strokeRadius;
 
 canvas.onmousedown = (e) => {
     accuracyText.innerText = "0% accurate";
+    setTimeout(() => {
+        if(drawing)
+            endDrawing();
+    }, 3000);
+    drawingStartTime = Date.now();
     shapePoints = []
     lastX = e.clientX;
     lastY = e.clientY - canvasTop;
@@ -42,7 +48,33 @@ canvas.onmousedown = (e) => {
     ctx.beginPath();
     drawing = true
 }
-canvas.onmouseup = (e) => {
+canvas.onmouseup = () => {
+    if(drawing)
+        endDrawing();
+}
+
+addEventListener("mousemove", function(e){
+    if(drawing){
+        accuracyText.innerText = ((3000 - (Date.now() - drawingStartTime)) /1000).toFixed(2) + " seconds remaining";
+        if (Math.sqrt(Math.pow(lastX - e.clientX, 2) + Math.pow(lastY - (e.clientY - canvasTop), 2)) > 5){
+            drawCircle(e.clientX, e.clientY - canvasTop, strokeRadius);
+            shapePoints.push({x: e.clientX, y: e.clientY - canvasTop});
+            xMin = Math.min(xMin, e.clientX);
+            yMin = Math.min(yMin, e.clientY - canvasTop);
+            xMax = Math.max(xMax, e.clientX);
+            yMax = Math.max(yMax, e.clientY - canvasTop);
+            lastX = e.clientX;
+            lastY = e.clientY - canvasTop;
+        }
+    }
+ });
+
+function drawCircle(x, y){
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function endDrawing(e){
     ctx.closePath();
     drawing = false;
     
@@ -188,24 +220,4 @@ canvas.onmouseup = (e) => {
         }
     }
     ctx.strokeStyle = "black";
-}
-
-addEventListener("mousemove", function(e){
-    if(drawing){
-        if (Math.sqrt(Math.pow(lastX - e.clientX, 2) + Math.pow(lastY - (e.clientY - canvasTop), 2)) > 5){
-            drawCircle(e.clientX, e.clientY - canvasTop, strokeRadius);
-            shapePoints.push({x: e.clientX, y: e.clientY - canvasTop});
-            xMin = Math.min(xMin, e.clientX);
-            yMin = Math.min(yMin, e.clientY - canvasTop);
-            xMax = Math.max(xMax, e.clientX);
-            yMax = Math.max(yMax, e.clientY - canvasTop);
-            lastX = e.clientX;
-            lastY = e.clientY - canvasTop;
-        }
-    }
- });
-
-function drawCircle(x, y){
-    ctx.lineTo(x, y);
-    ctx.stroke();
 }
