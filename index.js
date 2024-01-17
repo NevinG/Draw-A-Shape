@@ -30,20 +30,20 @@ if (localStorage.getItem("triangle") == undefined)
 ctx.lineWidth = strokeRadius;
 
 canvas.onmousedown = (e) => {onMouseDown(e)}
-canvas.ontouchstart = (e) => {onMouseDown(e.touches[0])}
+canvas.addEventListener("touchstart", (e) => {onMouseDown(e.touches[0])})
 
 canvas.onmouseup = () => {
     if(drawing)
         endDrawing();
 }
 
-canvas.ontouchend = () => {
+canvas.addEventListener("touchend", () => {
     if(drawing)
         endDrawing();
-}
+});
 
 addEventListener("mousemove", (e) => {moveMouse(e)});
-addEventListener("touchmmove", (e) => {e.touches[0]});
+addEventListener("touchmove", (e) => {moveMouse(e.touches[0])});
 
 function drawCircle(x, y){
     ctx.lineTo(x, y);
