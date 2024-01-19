@@ -98,7 +98,7 @@ function endDrawing(){
         return;
 
     if (Math.sqrt(Math.pow(shapePoints[0].x - shapePoints[shapePoints.length - 1].x, 2) + 
-        Math.pow(shapePoints[0].y - shapePoints[shapePoints.length - 1].y, 2)) > 20){
+        Math.pow(shapePoints[0].y - shapePoints[shapePoints.length - 1].y, 2)) > 40){
             accuracyText.innerText = "Incomplete shape";
             return;
       }
